@@ -8,36 +8,52 @@ library(dplyr)
 library(tidyr)
 
 
+json_df <- read_json("data/db.json", "jsonl")
+temp <- json_df %>% sample_n(5)  # Small subset to test functions
+
+
 # ------------------------------------------------------------------------------
 # View heirarchy to help decide on a table structure
 #
-temp <- read_lines("data/db.json") %>% .[c(T, F)] # Skip every other line
-jsonlite::prettify(temp[1])
+jsonlite::prettify(as.tbl_json(json_df)[1, 1])
 
 
 # ------------------------------------------------------------------------------
-# Tidy the data
+# Separate data into two tidy tables
 #
-df <- read_json("data/db.json", "jsonl") %>% head()  # Small subset to test functions
-
-# Split "object" types (lists) from other types for use with tidyjson functions
-obj <- df %>% filter(type == "object") %>% select(-type)
-nonobj <- df %>% filter(type != "object") %>% select(-type)
-
-# Yo james check these out yo, or delete if not useful, idk
-temp <- df %>% gather_object() %>% json_types()
-temp2 <- gather_object(obj)
-temp2 <- spread_all(obj)
-temp3 <- append_chr(nonobj)
-
-# This looks like the right way to get shit done
-temp <- df %>%
-  enter_object(stats) %>% 
-  gather_object() %>% 
-  append_dbl()
 
 
 
+players <- json_df %>%
+  spread_values(
+    id = json_chr("uniqueId"),
+    name = json_chr("displayName"),
+    platform = json_chr("platform", "name"),
+    start_date = json_dbl("createdAt"),
+    shots = json_dbl("stats", "shots"),
+    saves = json_dbl("stats", "saves"),
+    mvps = json_dbl("stats", "mvps"),
+    goals = json_dbl("stats", "goals"),
+    assists = json_dbl("stats", "assists"),
+    wins = json_dbl("stats", "wins")
+  )
+
+
+# id	season	type	mmr	tier	games	div
+
+# rank <- temp %>%
+#   spread_values(
+#     id = json_chr("uniqueId"),
+#     name = json_chr("displayName"),
+#     platform = json_chr("platform", "name"),
+#     start_date = json_dbl("createdAt"),
+#     shots = json_dbl("stats", "shots"),
+#     saves = json_dbl("stats", "saves"),
+#     mvps = json_dbl("stats", "mvps"),
+#     goals = json_dbl("stats", "goals"),
+#     assists = json_dbl("stats", "assists"),
+#     wins = json_dbl("stats", "wins")
+#   )
 
 
 
