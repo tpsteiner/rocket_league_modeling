@@ -7,7 +7,20 @@ library(dplyr)
 library(tidyr)
 
 
-json_df <- read_json("data/db.json", "jsonl")
+# ------------------------------------------------------------------------------
+# Save and load faster
+#
+saveRDS(players, "data/players.Rds")
+saveRDS(rank, "data/rank.Rds")
+
+players <- readRDS("data/players.Rds")
+rank <- readRDS("data/rank.Rds")
+
+
+# ------------------------------------------------------------------------------
+# Load JSON formatted text file into tidy df
+#
+json_df <- read_json("data/raw/db.json", "jsonl")
 temp <- json_df %>% sample_n(5)  # Small subset to test functions
 
 
@@ -56,10 +69,15 @@ rank <- json_df %>%
 
 
 # ------------------------------------------------------------------------------
-# Save and load faster
+# Remove duplicates and NAs
 #
-saveRDS(players, "data/players.Rds")
-saveRDS(rank, "data/rank.Rds")
+players <- players %>%
+  drop_na() %>%
+  distinct(id, .keep_all = TRUE)
 
-players <- readRDS("data/players.Rds")
-rank <- readRDS("data/rank.Rds")
+rank <- rank %>%
+  drop_na() %>%
+  distinct()
+
+
+
