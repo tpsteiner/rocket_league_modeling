@@ -1,27 +1,11 @@
 library(tidyjson)
-library(magrittr)
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 
-
-# ------------------------------------------------------------------------------
-# Save and load faster
-
-saveRDS(players, "data/players.Rds")
-saveRDS(rank, "data/rank.Rds")
-
-players <- readRDS("data/players.Rds")
-rank <- readRDS("data/rank.Rds")
-
-
-# ------------------------------------------------------------------------------
-# Load JSON formatted text file into tidy df
 
 json_df <- read_json("data/raw/db.json", "jsonl")
 
-
 # ------------------------------------------------------------------------------
-# Separate data into two tidy tables
+# Separate data into two "tidy" tables, each with there own observational unit
 
 players <- 
   json_df %>%
@@ -51,7 +35,7 @@ rank <-
 
 
 # ------------------------------------------------------------------------------
-# Reshape the rank table
+# Reshape the rank table so that it follows "tidy" methodology
 
 rank %<>%
   gather(key, val, -c(document.id, id)) %>%
@@ -67,7 +51,7 @@ rank %<>%
 
 
 # ------------------------------------------------------------------------------
-# Remove duplicates and NAs
+# Remove duplicates and NAs to make the data easier to analyze
 
 players %<>%
   drop_na() %>%
@@ -76,3 +60,7 @@ players %<>%
 rank %<>%
   drop_na() %>%
   distinct()
+
+
+saveRDS(players, "data/players.Rds")
+saveRDS(rank, "data/rank.Rds")
