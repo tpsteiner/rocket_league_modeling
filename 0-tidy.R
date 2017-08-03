@@ -1,39 +1,14 @@
-# devtools::install_github('jeremystan/tidyjson',ref='f6f13f4')
-# Dev version of tidyjson fixes problem with dplyr, i think..?
-
 library(tidyjson)
-library(magrittr)
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 
 
-# ------------------------------------------------------------------------------
-# Save and load faster
-#
-saveRDS(players, "data/players.Rds")
-saveRDS(rank, "data/rank.Rds")
-
-players <- readRDS("data/players.Rds")
-rank <- readRDS("data/rank.Rds")
-
-
-# ------------------------------------------------------------------------------
-# Load JSON formatted text file into tidy df
-#
 json_df <- read_json("data/raw/db.json", "jsonl")
-temp <- json_df %>% sample_n(5)  # Small subset to test functions
-
 
 # ------------------------------------------------------------------------------
-# View heirarchy to help decide on a table structure
-#
-jsonlite::prettify(as.tbl_json(json_df)[1, 1])
+# Separate data into two "tidy" tables, each with there own observational unit
 
-
-# ------------------------------------------------------------------------------
-# Separate data into two tidy tables
-#
-players <- json_df %>%
+players <- 
+  json_df %>%
   spread_values(
     id         = json_chr("uniqueId"),
     name       = json_chr("displayName"),
@@ -50,12 +25,19 @@ players <- json_df %>%
 # anytime::anytime(1468013823)  # Convert createdAt if we decide to use it
 
 # This takes a few minutes
-rank <- json_df %>%
+rank <- 
+  json_df %>%
   spread_values(
     id = json_chr("uniqueId")
   ) %>%
   enter_object("rankedSeasons") %>%
-  spread_all() %>%
+  spread_all()
+
+
+# ------------------------------------------------------------------------------
+# Reshape the rank table so that it follows "tidy" methodology
+
+rank %<>%
   gather(key, val, -c(document.id, id)) %>%
   separate(key, 
            c("season", "game_type", "stats"), 
@@ -69,15 +51,16 @@ rank <- json_df %>%
 
 
 # ------------------------------------------------------------------------------
-# Remove duplicates and NAs
-#
-players <- players %>%
+# Remove duplicates and NAs to make the data easier to analyze
+
+players %<>%
   drop_na() %>%
   distinct(id, .keep_all = TRUE)
 
-rank <- rank %>%
+rank %<>%
   drop_na() %>%
   distinct()
 
 
-
+saveRDS(players, "data/players.Rds")
+saveRDS(rank, "data/rank.Rds")
