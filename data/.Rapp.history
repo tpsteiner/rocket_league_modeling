@@ -1,0 +1,2 @@
+load("/Users/jamesthompson/Dropbox/Analytics/rocket_league_modeling/data/players.Rds")
+load("/Users/jamesthompson/Dropbox/Analytics/rocket_league_modeling/data/rank.Rds")
