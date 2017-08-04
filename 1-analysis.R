@@ -6,6 +6,7 @@ library(magrittr)
 players <- readRDS("data/players.Rds")
 rank <- readRDS("data/rank.Rds")
 
+
 # ------------------------------------------------------------------------------
 # two mutations to dataset
 players$cume_dist = cume_dist(players$wins) # cumulative distribution column based on wins
@@ -58,7 +59,15 @@ players %>% filter(goal_pct >= 1) %>% arrange(wins)
 
 
 # ------------------------------------------------------------------------------
+# Rank distributions for each ranked game type for season 4
+
 head(rank)
 
-rank %>% filter(season == 4) %>%
-  ggplot() + geom_bar(aes(rank))
+rank %>% 
+  filter(season == 4) %>%
+  group_by(tier, game_type) %>%
+  mutate(freq = n()) %>%
+  ggplot() + 
+  geom_bar(aes(tier)) + 
+  facet_wrap(~game_type) +
+  geom_text(aes(tier, freq, label = tier), nudge_y = 25)
