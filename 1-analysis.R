@@ -1,10 +1,10 @@
 library(tidyverse)
 library(corrplot)
+library(magrittr)
 
 
 players <- readRDS("data/players.Rds")
 rank <- readRDS("data/rank.Rds")
-
 
 # ------------------------------------------------------------------------------
 # two mutations to dataset

@@ -1,5 +1,6 @@
 library(tidyjson)
 library(tidyverse)
+library(magrittr)
 
 
 json_df <- read_json("data/raw/db.json", "jsonl")
@@ -45,8 +46,7 @@ rank %<>%
   spread(stats, val) %>%
   rename(
     matches_played = matchesPlayed, 
-    mmr            = rankPoints, 
-    rank           = tier
+    mmr            = rankPoints
   )
 
 
