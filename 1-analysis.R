@@ -39,6 +39,8 @@ players %>%
   ggtitle("Win Distribution for Top 10% of Players") +
   theme_bw()
 
+# More goals per player are scored in 1v1 than 3v3. Goal cannot be
+# calculated because all game_type wins/goals are grouped together
 
 # ------------------------------------------------------------------------------
 players %>% 
@@ -50,5 +52,13 @@ players %>%
   ggtitle("Goals vs Goal Percent") +
   theme_bw()
 
+# Check out the count of wins. The data is not wrong. RL's system for
+# identifying shots is not perfect.
+players %>% filter(goal_pct >= 1) %>% arrange(wins)
 
 
+# ------------------------------------------------------------------------------
+head(rank)
+
+rank %>% filter(season == 4) %>%
+  ggplot() + geom_bar(aes(rank))
