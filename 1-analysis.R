@@ -70,4 +70,35 @@ rank %>%
   ggplot() + 
   geom_bar(aes(tier)) + 
   facet_wrap(~game_type) +
-  geom_text(aes(tier, freq, label = tier), nudge_y = 25)
+  geom_text(aes(tier, freq, label = tier), nudge_y = 25, size = 3)
+
+# Although counts differ for rank dist for each ranked game type for season 4,
+# the density distributions look very similar
+# the most apparent difference is high density of tier 0 players in game type 10
+# and higher density of higher tier players in game type 11
+rank %>% 
+  filter(season == 4) %>%
+  group_by(tier, game_type) %>%
+  mutate(freq = n()) %>%
+  ggplot() + 
+  geom_density(aes(tier)) + 
+  facet_wrap(~game_type)
+
+
+# Rank distribution for each ranked game type and division for season 4
+# (note from James: not sure if this even makes intuitive sense)
+# division 0 has the most newbs across all game types
+
+rank %>% 
+  filter(season == 4) %>%
+  group_by(division, tier, game_type) %>%
+  mutate(freq = n()) %>%
+  ggplot() +
+  geom_density(aes(tier)) +
+  facet_wrap(c("game_type","division")) +
+  ggtitle("tier density distribution for each game type and division")
+
+
+
+
+
