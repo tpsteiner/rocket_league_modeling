@@ -84,6 +84,16 @@ players %<>%
 
 fit1 <- lm(best_mmr ~ saves, data = players)
 summary(fit1)
-
 # MVPs results in highest adj r^2 at .5, with saves right after at .49
-# Saves probably tells a better story
+# Saves probably tells a better story: saves is the most correlated with MMR
+
+plot(fit1)
+# Residuals vs Fitted
+#   - Predicted MMR is normally over-estimated when MMR > 1000
+#   - Could be due to saves being less important past 1000 MMR
+#
+# Normal Q-Q
+#   - The distribution of the residuals is mostly normal, but edge 
+#     cases are larger than edge cases of a normal distribution
+#
+# 
