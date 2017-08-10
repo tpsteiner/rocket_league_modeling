@@ -59,18 +59,89 @@ players %>% filter(goal_pct >= 1) %>% arrange(wins)
 
 
 # ------------------------------------------------------------------------------
-# Rank distributions for each ranked game type for season 4
+# Tier distributions for each ranked game type for season 5
 
 head(rank)
 
-rank %>% 
-  filter(season == 4) %>%
+# For each game type in season 5...
+# 1. Create chart-ready data frame to simplify plotting
+# 2. Plot a bar chart to match the distributions plots 
+#    on the Global page of rocketleaguestats.com
+
+################# Season 5
+################# Ranked Duel
+
+s5_duel <- rank %>%
+  filter(season == 5, tier != "Unranked", game_type == 10) %>%
   group_by(tier, game_type) %>%
-  mutate(freq = n()) %>%
+  summarise(freq = n(), dist = freq/nrow(.)) %>%
+  mutate(bar_labels = paste(freq, "(", round(dist * 100, 2), "%)"))
+
+s5_duel %>%
   ggplot() + 
-  geom_bar(aes(tier)) + 
-  facet_wrap(~game_type) +
-  geom_text(aes(tier, freq, label = tier), nudge_y = 25)
+  geom_bar(aes(tier, dist), stat="identity") +
+  geom_text(aes(tier, dist, label = bar_labels), hjust=0) +
+  scale_y_continuous(limits = c(0, .13), labels = scales::percent) +
+  ggtitle("Season 5 Player Distribution", "Ranked Duel") +
+  ylab(paste("Percent of ", sum(s5_duel$freq), " players")) +
+  coord_flip()
+
+################# Season 5
+################# Ranked Doubles
+
+s5_doubles <- rank %>%
+  filter(season == 5, tier != "Unranked", game_type == 11) %>%
+  group_by(tier, game_type) %>%
+  summarise(freq = n(), dist = freq/nrow(.)) %>%
+  mutate(bar_labels = paste(freq, "(", round(dist * 100, 2), "%)"))
+
+s5_doubles %>%
+  ggplot() + 
+  geom_bar(aes(tier, dist), stat="identity") +
+  geom_text(aes(tier, dist, label = bar_labels), hjust=0) +
+  scale_y_continuous(limits = c(0, .13), labels = scales::percent) +
+  ggtitle("Season 5 Player Distribution", "Ranked Doubles") +
+  ylab(paste("Percent of ", sum(s5_doubles$freq), " players")) +
+  coord_flip()
+
+################# Season 5
+################# Ranked Solo Standard
+
+s5_ss <- rank %>%
+  filter(season == 5, tier != "Unranked", game_type == 12) %>%
+  group_by(tier, game_type) %>%
+  summarise(freq = n(), dist = freq/nrow(.)) %>%
+  mutate(bar_labels = paste(freq, "(", round(dist * 100, 2), "%)"))
+
+s5_ss %>%
+  ggplot() + 
+  geom_bar(aes(tier, dist), stat="identity") +
+  geom_text(aes(tier, dist, label = bar_labels), hjust=0) +
+  scale_y_continuous(limits = c(0, .13), labels = scales::percent) +
+  ggtitle("Season 5 Player Distribution", "Ranked Solo Standard") +
+  ylab(paste("Percent of ", sum(s5_ss$freq), " players")) +
+  coord_flip()
+
+################# Season 5
+################# Ranked Standard
+
+s5_std <- rank %>%
+  filter(season == 5, tier != "Unranked", game_type == 13) %>%
+  group_by(tier, game_type) %>%
+  summarise(freq = n(), dist = freq/nrow(.)) %>%
+  mutate(bar_labels = paste(freq, "(", round(dist * 100, 2), "%)"))
+
+s5_std %>%
+  ggplot() + 
+  geom_bar(aes(tier, dist), stat="identity") +
+  geom_text(aes(tier, dist, label = bar_labels), hjust=0) +
+  scale_y_continuous(limits = c(0, .13), labels = scales::percent) +
+  ggtitle("Season 5 Player Distribution", "Ranked Standard") +
+  ylab(paste("Percent of ", sum(s5_std$freq), " players")) +
+  coord_flip()
+
+# ------------------------------------------------------------------------------
+# Simple linear regression
 
 best_mmr <- 
   rank %>%
@@ -138,5 +209,4 @@ tier_labels <- c('Unranked',
                  'Champion I', 'Champion II', 'Champion III', 
                  'Grand Champion')
 
-temp <- rank
 rank$tier <- factor(rank$tier, labels = tier_labels)
