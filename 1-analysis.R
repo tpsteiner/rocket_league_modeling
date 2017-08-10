@@ -63,6 +63,18 @@ players %>% filter(goal_pct >= 1) %>% arrange(wins)
 
 head(rank)
 
+# Re-label and re-type tier as factor for plots (index 1:19)
+tier_labels <- c('Unranked', 
+                 'Bronze I', 'Bronze II', 'Bronze III',
+                 'Silver I', 'Silver II', 'Silver III', 
+                 'Gold I', 'Gold II', 'Gold III', 
+                 'Platinum I', 'Platinum II', 'Platinum III',
+                 'Diamond I', 'Diamond II', 'Diamond III', 
+                 'Champion I', 'Champion II', 'Champion III', 
+                 'Grand Champion')
+
+rank$tier <- factor(rank$tier, labels = tier_labels)
+
 # For each game type in season 5...
 # 1. Create chart-ready data frame to simplify plotting
 # 2. Plot a bar chart to match the distributions plots 
@@ -140,35 +152,6 @@ s5_std %>%
   ylab(paste("Percent of ", sum(s5_std$freq), " players")) +
   coord_flip()
 
-# ------------------------------------------------------------------------------
-# Simple linear regression
-
-best_mmr <- 
-  rank %>%
-  group_by(id, season) %>%
-  summarise(avg_mmr = round(sum(mmr) / n())) %>%
-  ungroup() %>% group_by(id) %>%
-  summarise(best_mmr = max(avg_mmr))
-
-players %<>%
-  left_join(best_mmr)
-
-fit1 <- lm(best_mmr ~ saves, data = players)
-summary(fit1)
-# MVPs results in highest adj r^2 at .5, with saves right after at .49
-# Saves probably tells a better story: saves is the most correlated with MMR
-
-plot(fit1)
-# Residuals vs Fitted
-#   - Predicted MMR is normally over-estimated when MMR > 1000
-#   - Could be due to saves being less important past 1000 MMR
-#
-# Normal Q-Q
-#   - The distribution of the residuals is mostly normal, but edge 
-#     cases are larger than edge cases of a normal distribution
-#
-# 
-
 # Although counts differ for rank dist for each ranked game type for season 4,
 # the density distributions look very similar
 # the most apparent difference is high density of tier 0 players in game type 10
@@ -195,18 +178,3 @@ rank %>%
   facet_wrap(c("game_type","division")) +
   ggtitle("tier density distribution for each game type and division")
 
-
-
-# ------------------------------------------------------------------------------
-# Re-label and re-type factors for plots and 
-
-tier_labels <- c('Unranked', 
-                 'Bronze I', 'Bronze II', 'Bronze III',
-                 'Silver I', 'Silver II', 'Silver III', 
-                 'Gold I', 'Gold II', 'Gold III', 
-                 'Platinum I', 'Platinum II', 'Platinum III',
-                 'Diamond I', 'Diamond II', 'Diamond III', 
-                 'Champion I', 'Champion II', 'Champion III', 
-                 'Grand Champion')
-
-rank$tier <- factor(rank$tier, labels = tier_labels)
