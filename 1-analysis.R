@@ -3,8 +3,8 @@ library(corrplot)
 library(magrittr)
 
 
-players <- readRDS("data/players.Rds")
-rank <- readRDS("data/rank.Rds")
+players <- readRDS("data/raw/players.Rds")
+rank <- readRDS("data/raw/rank.Rds")
 
 
 # ------------------------------------------------------------------------------
@@ -70,7 +70,6 @@ rank %>%
   ggplot() + 
   geom_bar(aes(tier)) + 
   facet_wrap(~game_type) +
-
   geom_text(aes(tier, freq, label = tier), nudge_y = 25)
 
 best_mmr <- 
@@ -98,8 +97,6 @@ plot(fit1)
 #     cases are larger than edge cases of a normal distribution
 #
 # 
-
-  geom_text(aes(tier, freq, label = tier), nudge_y = 25, size = 3)
 
 # Although counts differ for rank dist for each ranked game type for season 4,
 # the density distributions look very similar
@@ -129,6 +126,17 @@ rank %>%
 
 
 
+# ------------------------------------------------------------------------------
+# Re-label and re-type factors for plots and 
 
+tier_labels <- c('Unranked', 
+                 'Bronze I', 'Bronze II', 'Bronze III',
+                 'Silver I', 'Silver II', 'Silver III', 
+                 'Gold I', 'Gold II', 'Gold III', 
+                 'Platinum I', 'Platinum II', 'Platinum III',
+                 'Diamond I', 'Diamond II', 'Diamond III', 
+                 'Champion I', 'Champion II', 'Champion III', 
+                 'Grand Champion')
 
-
+temp <- rank
+rank$tier <- factor(rank$tier, labels = tier_labels)
