@@ -71,3 +71,19 @@ rank %>%
   geom_bar(aes(tier)) + 
   facet_wrap(~game_type) +
   geom_text(aes(tier, freq, label = tier), nudge_y = 25)
+
+best_mmr <- 
+  rank %>%
+  group_by(id, season) %>%
+  summarise(avg_mmr = round(sum(mmr) / n())) %>%
+  ungroup() %>% group_by(id) %>%
+  summarise(best_mmr = max(avg_mmr))
+
+players %<>%
+  left_join(best_mmr)
+
+fit1 <- lm(best_mmr ~ saves, data = players)
+summary(fit1)
+
+# MVPs results in highest adj r^2 at .5, with saves right after at .49
+# Saves probably tells a better story
