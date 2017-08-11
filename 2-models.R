@@ -1,40 +1,63 @@
-
-# ------------------------------------------------------------------------------
-# Simple linear regression model matrix
-# Number of models is number of game types times number of player stats
+library(tidyverse)
+library(broom)     # To tidy model data
+library(magrittr)  # Includes exposition pipe %$% and tee pipe %T>%
+library(printr)    # Printing tables to console is neater
 
 players <- readRDS("data/raw/players.Rds")
-rank <- readRDS("data/raw/rank.Rds")
+rank    <- readRDS("data/raw/rank.Rds")
 
-# 10, 11, 12, 13
+
+# ------------------------------------------------------------------------------
+# Organize the data into a tidy, model-ready data frame
+
+# Label game_type and make it a factor variable for modeling
 game_type_labels <- c(rep(NA, 9),"Ranked Duel", "Ranked Doubles", 
                       "Ranked Solo Standard", "Ranked Standard")
 
-factor(rank$game_type, levels = game_type_labels)
-# Start by organizing the data into a tidy, model-ready data frame
+rank$game_type <- rank %$%
+  as.integer(game_type) %>%
+  game_type_labels[.]
+
+# Keep only that data that we need to simplify modeling
 model_data <- rank %>%
   filter(season == 5) %>%
   inner_join(players, by = "id") %>%
-  select(id, game_type, tier, division, mmr, matches_played, 
-         shots, saves, mvps, goals, assists, wins)
+  select(mmr, game_type, id, name, matches_played,  
+         shots, saves, mvps, goals, assists, wins) %>%
+  gather(stat, stat_value, -c(1:4))
+
+# Split the data into train/test data sets to reduce bias error
+n <- nrow(model_data)
+s <- sample(1:n, n*.8)
+
+train <- model_data[s, ]
+test  <- model_data[-s, ]
+
+# Add a column of linear models that can be tidied with broom
+mmr_models <- model_data %>%
+  group_by(game_type, stat) %>%
+  do(
+    mod = lm(mmr ~ stat_value, data = .),
+    original = (.)
+    )
 
 
+# ------------------------------------------------------------------------------
+# Use broom to investigate models
+# Linear models output stats for three observational units:
+#   1. Model
+#   2. Coefficient
+#   3. Sample
+# Following the "tidy" methodology, we will need 
+# to create three tables to hold the data
 
-# vignette(package="broom")
-# vignette("broom_and_dplyr")
+## Coefficients (component-level stats):
+## - All coefficients are significant. This is expected, 
+##   because all stats increase with time
+mmr_coef <- tidy(mmr_models, mod) %T>% print()
 
-fit1 <- lm(best_mmr ~ saves, data = players)
-summary(fit1)
-# MVPs results in highest adj r^2 at .5, with saves right after at .49
-# Saves probably tells a better story: saves is the most correlated with MMR
+## Predictions (observation-level stats):
+mmr_pred <- augment(mmr_models, mod, data = original) %T>% print()
 
-plot(fit1)
-# Residuals vs Fitted
-#   - Predicted MMR is normally over-estimated when MMR > 1000
-#   - Could be due to saves being less important past 1000 MMR
-#
-# Normal Q-Q
-#   - The distribution of the residuals is mostly normal, but edge 
-#     cases are larger than edge cases of a normal distribution
-#
-# 
+## Summary statistics (model-level stats):
+mmr_ss <- glance(mmr_models, mod) %T>% print() 
