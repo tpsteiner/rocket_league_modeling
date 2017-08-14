@@ -1,0 +1,19 @@
+---
+title: "workflow"
+author: "Thomas Steiner, James Thompson"
+date: "August 14, 2017"
+output: html_document
+---
+
+Having played an embarrassing amount of Rocket League (RL) over the past two years, I thought it would be a good idea to use my extensive in-game knowledge to make fun content for the community. There have been mild data analyses posted to popular forums for Rocket League, but predictive analytics has not been applied to related data.
+
+The first step was to make a question that could be answered through predictive analytics. What matchmaking rating (MMR) will a player have next season? Wow! That would be cool, but we quickly realized how hard this question would be to answer. We changed the question to: What is a player's current MMR? Not as cool, but a more reasonable start.
+
+At a minmum, we needed player MMR and other basic RL stats to answer this question. We looked at third-party Rocket League stat websites, and ultimately picked rocketleaguestats.com because of their simple web API. The API needed unique console IDs (steam IDs, PS4 usernames, and Xbox One usernames). 
+
+We decided to ignore PS4 players and Xbox One players for this analysis, because Steam provides far more user information through their web API.
+
+So, if we have a Steam user ID, we can send a request to the rls API to get the user's RL data, then we can send a request to the Steam API to get other player data. But how do we get a batch of steam IDs? Intense research and communication.
+
+Ultimately I found a reddit user who had their own database of steam users. This person offered to query their database for Steam IDs that own RL. Great, 27,000 IDs with no effort. Now we could get started with the dirty work.
+
