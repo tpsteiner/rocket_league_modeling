@@ -1,0 +1,20 @@
+# Changes to my.ini
+# innodb_flush_log_at_trx_commit=2
+# slow-query-log=0
+
+
+CREATE DATABASE IF NOT EXISTS steam;
+USE steam;
+
+SET unique_checks=0;
+SET foreign_key_checks=0;
+SET SESSION tx_isolation='READ-UNCOMMITTED';
+SET sql_log_bin = 0;
+set global net_buffer_length=1000000;
+set global max_allowed_packet=1000000000;
+
+SOURCE D:/data/steam.sql;
+
+SET unique_checks=1;
+SET foreign_key_checks=1;
+SET SESSION tx_isolation='REPEATABLE-READ';
